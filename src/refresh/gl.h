@@ -191,6 +191,11 @@ extern cvar_t *gl_modulate_entities;
 extern cvar_t *gl_doublelight_entities;
 extern cvar_t *gl_fontshadow;
 extern cvar_t *gl_shaders;
+extern cvar_t *gl_playeroutline;
+extern cvar_t *gl_playeroutline_team1_model;
+extern cvar_t *gl_playeroutline_team2_model;
+extern cvar_t *gl_playeroutline_team1_color;
+extern cvar_t *gl_playeroutline_team2_color;
 
 // development variables
 extern cvar_t *gl_znear;

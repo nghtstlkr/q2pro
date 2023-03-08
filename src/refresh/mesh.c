@@ -31,6 +31,8 @@ static vec3_t   translate;
 static vec_t    shellscale;
 static tessfunc_t tessfunc;
 static vec4_t   color;
+static color_t  olcolor;
+static bool     oldraw;
 
 static const vec_t  *shadelight;
 static vec3_t       shadedir;
@@ -419,7 +421,7 @@ static void setup_celshading(void)
 
 static void draw_celshading(const maliasmesh_t *mesh)
 {
-    if (celscale < 0.01f || celscale > 1)
+    if (celscale < 0.01f || celscale > 1 || oldraw)
         return;
 
     GL_BindTexture(0, TEXNUM_BLACK);
@@ -430,6 +432,54 @@ static void draw_celshading(const maliasmesh_t *mesh)
     qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     qglCullFace(GL_FRONT);
     GL_Color(0, 0, 0, color[3] * celscale);
+    qglDrawElements(GL_TRIANGLES, mesh->numindices, QGL_INDEX_ENUM,
+                    mesh->indices);
+    qglCullFace(GL_BACK);
+    qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    qglLineWidth(1);
+}
+
+static void setup_playeroutline(const model_t *model)
+{
+    char s[MAX_QPATH];
+
+    oldraw = false;
+
+    if (!gl_playeroutline->integer)
+        return;
+
+    sprintf(&s, "players/%s/tris.md2", gl_playeroutline_team1_model->string);
+    if (!strcmp(model->name, &s))
+    {
+        SCR_ParseColor(gl_playeroutline_team1_color->string, &olcolor);
+        oldraw = true;
+        return;
+    }
+
+    sprintf(&s, "players/%s/tris.md2", gl_playeroutline_team2_model->string);
+    if (!strcmp(model->name, &s))
+    {
+        SCR_ParseColor(gl_playeroutline_team2_color->string, &olcolor);
+        oldraw = true;
+        return;
+    }
+}
+
+static void draw_playeroutline(const maliasmesh_t *mesh)
+{
+    float value = Cvar_ClampValue(gl_playeroutline, 0, 10);
+
+    if (value == 0 || !oldraw)
+        return;
+
+    GL_BindTexture(0, TEXNUM_WHITE);
+    GL_StateBits(GLS_BLEND_BLEND);
+    GL_ArrayBits(GLA_VERTEX);
+
+    qglLineWidth(value);
+    qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    qglCullFace(GL_FRONT);
+    GL_Color(olcolor.u8[0], olcolor.u8[1], olcolor.u8[2], olcolor.u8[3]);
     qglDrawElements(GL_TRIANGLES, mesh->numindices, QGL_INDEX_ENUM,
                     mesh->indices);
     qglCullFace(GL_BACK);
@@ -591,6 +641,7 @@ static void draw_alias_mesh(const maliasmesh_t *mesh)
                     mesh->indices);
 
     draw_celshading(mesh);
+    draw_playeroutline(mesh);
 
     if (gl_showtris->integer) {
         GL_DrawOutlines(mesh->numindices, mesh->indices);
@@ -674,6 +725,7 @@ void GL_DrawAliasModel(const model_t *model)
     setup_celshading();
     setup_dotshading();
     setup_shadow();
+    setup_playeroutline(model);
 
     // select proper tessfunc
     if (ent->flags & RF_SHELL_MASK) {

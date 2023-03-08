@@ -52,6 +52,11 @@ cvar_t *gl_fontshadow;
 cvar_t *gl_shaders;
 cvar_t *gl_waterwarp;
 cvar_t *gl_swapinterval;
+cvar_t *gl_playeroutline;
+cvar_t *gl_playeroutline_team1_model;
+cvar_t *gl_playeroutline_team2_model;
+cvar_t *gl_playeroutline_team1_color;
+cvar_t *gl_playeroutline_team2_color;
 
 // development variables
 cvar_t *gl_znear;
@@ -748,6 +753,36 @@ static void gl_swapinterval_changed(cvar_t *self)
         vid.swap_interval(self->integer);
 }
 
+static color_t olcolor;
+
+static void gl_playeroutline_team_model_changed(cvar_t *self)
+{
+    char s[MAX_QPATH];
+    
+    sprintf(&s, "players/%s/tris.md2", self->string);
+    if (!FS_FileExists(s))
+    {
+        Com_WPrintf("Invalid value '%s' for '%s'\n", self->string, self->name);
+        Cvar_Reset(self);
+    }
+}
+
+static void gl_playeroutline_team1_color_changed(cvar_t *self)
+{
+    if (!SCR_ParseColor(self->string, &olcolor)) {
+        Com_WPrintf("Invalid value '%s' for '%s'\n", self->string, self->name);
+        Cvar_Reset(self);
+    }
+}
+
+static void gl_playeroutline_team2_color_changed(cvar_t *self)
+{
+    if (!SCR_ParseColor(self->string, &olcolor)) {
+        Com_WPrintf("Invalid value '%s' for '%s'\n", self->string, self->name);
+        Cvar_Reset(self);
+    }
+}
+
 static void GL_Register(void)
 {
     // regular variables
@@ -775,6 +810,15 @@ static void GL_Register(void)
     gl_waterwarp = Cvar_Get("gl_waterwarp", "1", 0);
     gl_swapinterval = Cvar_Get("gl_swapinterval", "1", CVAR_ARCHIVE);
     gl_swapinterval->changed = gl_swapinterval_changed;
+    gl_playeroutline = Cvar_Get("gl_playeroutline", "0", 0);
+    gl_playeroutline_team1_model = Cvar_Get("gl_playeroutline_team1_model", "male", 0);
+    gl_playeroutline_team1_model->changed = gl_playeroutline_team_model_changed;
+    gl_playeroutline_team2_model = Cvar_Get("gl_playeroutline_team2_model", "female", 0);
+    gl_playeroutline_team2_model->changed = gl_playeroutline_team_model_changed;
+    gl_playeroutline_team1_color = Cvar_Get("gl_playeroutline_team1_color", "white", 0);
+    gl_playeroutline_team1_color->changed = gl_playeroutline_team1_color_changed;
+    gl_playeroutline_team2_color = Cvar_Get("gl_playeroutline_team2_color", "green", 0);
+    gl_playeroutline_team2_color->changed = gl_playeroutline_team2_color_changed;
 
     // development variables
     gl_znear = Cvar_Get("gl_znear", "2", CVAR_CHEAT);
