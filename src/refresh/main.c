@@ -810,14 +810,14 @@ static void GL_Register(void)
     gl_waterwarp = Cvar_Get("gl_waterwarp", "1", 0);
     gl_swapinterval = Cvar_Get("gl_swapinterval", "1", CVAR_ARCHIVE);
     gl_swapinterval->changed = gl_swapinterval_changed;
-    gl_playeroutline = Cvar_Get("gl_playeroutline", "0", 0);
-    gl_playeroutline_team1_model = Cvar_Get("gl_playeroutline_team1_model", "male", 0);
+    gl_playeroutline = Cvar_Get("gl_playeroutline", "0", CVAR_ARCHIVE);
+    gl_playeroutline_team1_model = Cvar_Get("gl_playeroutline_team1_model", "male", CVAR_ARCHIVE);
     gl_playeroutline_team1_model->changed = gl_playeroutline_team_model_changed;
-    gl_playeroutline_team2_model = Cvar_Get("gl_playeroutline_team2_model", "female", 0);
+    gl_playeroutline_team2_model = Cvar_Get("gl_playeroutline_team2_model", "female", CVAR_ARCHIVE);
     gl_playeroutline_team2_model->changed = gl_playeroutline_team_model_changed;
-    gl_playeroutline_team1_color = Cvar_Get("gl_playeroutline_team1_color", "white", 0);
+    gl_playeroutline_team1_color = Cvar_Get("gl_playeroutline_team1_color", "white", CVAR_ARCHIVE);
     gl_playeroutline_team1_color->changed = gl_playeroutline_team1_color_changed;
-    gl_playeroutline_team2_color = Cvar_Get("gl_playeroutline_team2_color", "green", 0);
+    gl_playeroutline_team2_color = Cvar_Get("gl_playeroutline_team2_color", "green", CVAR_ARCHIVE);
     gl_playeroutline_team2_color->changed = gl_playeroutline_team2_color_changed;
 
     // development variables
