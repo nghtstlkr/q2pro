@@ -27,8 +27,9 @@ PLAYER CONFIG MENU
 =============================================================================
 */
 
-#define ID_MODEL 103
-#define ID_SKIN    104
+#define ID_MODEL    103
+#define ID_SKIN     104
+#define ID_OUTLINE  105
 
 typedef struct m_player_s {
     menuFrameWork_t     menu;
@@ -36,6 +37,7 @@ typedef struct m_player_s {
     menuSpinControl_t   model;
     menuSpinControl_t   skin;
     menuSpinControl_t   hand;
+    menuSlider_t        outline;
 
     refdef_t    refdef;
     entity_t    entities[2];
@@ -181,6 +183,10 @@ static void Size(menuFrameWork_t *self)
 
     m_player.hand.generic.x     = x;
     m_player.hand.generic.y     = y;
+    y += MENU_SPACING * 2;
+
+    m_player.outline.generic.x  = x;
+    m_player.outline.generic.y  = y;
 }
 
 static menuSound_t Change(menuCommon_t *self)
@@ -194,6 +200,11 @@ static menuSound_t Change(menuCommon_t *self)
         // fall through
     case ID_SKIN:
         ReloadMedia();
+        break;
+    case ID_OUTLINE:
+        char val[2];
+        sprintf(val, "%d", (int)m_player.outline.curvalue);
+        Cvar_Set("gl_playeroutline", val, FROM_MENU);
         break;
     default:
         break;
@@ -344,10 +355,19 @@ void M_Menu_PlayerConfig(void)
     m_player.hand.generic.name = "handedness";
     m_player.hand.itemnames = (char **)handedness;
 
+    m_player.outline.generic.type = MTYPE_SLIDER;
+    m_player.outline.generic.id = ID_OUTLINE;
+    m_player.outline.generic.name = "outline";
+    m_player.outline.minvalue = 0;
+    m_player.outline.maxvalue = 10;
+    m_player.outline.step = 1;
+    m_player.outline.generic.change = Change;
+
     Menu_AddItem(&m_player.menu, &m_player.name);
     Menu_AddItem(&m_player.menu, &m_player.model);
     Menu_AddItem(&m_player.menu, &m_player.skin);
     Menu_AddItem(&m_player.menu, &m_player.hand);
+    Menu_AddItem(&m_player.menu, &m_player.outline);
 
     List_Append(&ui_menus, &m_player.menu.entry);
 }
